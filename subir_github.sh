@@ -3,23 +3,18 @@
 set -e
 
 echo "======================================"
-echo "  SUBIR PROYECTO LIMPIO A GITHUB"
+echo "  ACTUALIZAR PROYECTO EN GITHUB"
 echo "======================================"
-
-# ======================================
-# CONFIGURACIÓN
-# ======================================
 
 REPO="git@github.com:edoarav/aprender-git.git"
 BRANCH="master"
 
 # ======================================
-# COMPROBAR QUE ESTAMOS EN EL PROYECTO
+# COMPROBAR PROYECTO
 # ======================================
 
 if [ ! -f "Gimnasio.py" ]; then
     echo "❌ No parece que estés en la carpeta del proyecto."
-    echo "Ejecuta este script desde ~/programas/Git"
     exit 1
 fi
 
@@ -27,11 +22,10 @@ fi
 # COMPROBAR .ENV
 # ======================================
 
-if [ ! -f ".env" ]; then
-    echo "⚠️ No existe .env"
-    echo "Continuando..."
-else
+if [ -f ".env" ]; then
     echo "🔐 .env encontrado"
+else
+    echo "⚠️ No existe .env"
 fi
 
 # ======================================
@@ -40,59 +34,49 @@ fi
 
 if ! grep -qxF ".env" .gitignore; then
     echo "❌ ERROR: .gitignore no contiene .env"
-    echo "No voy a continuar para evitar subir credenciales."
+    echo "ABORTANDO para proteger las credenciales."
     exit 1
 fi
 
 echo "✅ .env está protegido por .gitignore"
 
 # ======================================
-# BORRAR HISTORIAL GIT ANTERIOR
+# COMPROBAR REPOSITORIO
 # ======================================
 
-if [ -d ".git" ]; then
-    echo "🗑️ Eliminando historial Git anterior..."
-    rm -rf .git
+if [ ! -d ".git" ]; then
+    echo "❌ No existe un repositorio Git."
+    echo "Ejecuta git init primero."
+    exit 1
 fi
 
 # ======================================
-# CREAR REPOSITORIO NUEVO
+# COMPROBAR REMOTE
 # ======================================
 
-echo "📦 Inicializando Git..."
-
-git init
-git branch -M "$BRANCH"
-
-# ======================================
-# CONFIGURAR REMOTO
-# ======================================
-
-git remote add origin "$REPO"
+if ! git remote get-url origin >/dev/null 2>&1; then
+    echo "⚠️ Configurando origin..."
+    git remote add origin "$REPO"
+fi
 
 # ======================================
-# AGREGAR ARCHIVOS
+# AGREGAR CAMBIOS
 # ======================================
 
-echo "📋 Agregando archivos..."
+echo ""
+echo "📋 Agregando cambios..."
 
 git add .
 
 # ======================================
-# VERIFICACIÓN DE SEGURIDAD
+# COMPROBAR QUE .ENV NO ESTE INCLUIDO
 # ======================================
 
 echo ""
-echo "🔍 Archivos que serán enviados:"
-echo ""
-
-git status --short
-
-echo ""
-echo "🔐 Comprobando que .env NO esté incluido..."
+echo "🔐 Verificando .env..."
 
 if git ls-files --error-unmatch .env >/dev/null 2>&1; then
-    echo "❌ ERROR: .env está siendo incluido."
+    echo "❌ ERROR: .env está siendo seguido por Git."
     echo "ABORTANDO."
     exit 1
 fi
@@ -100,13 +84,26 @@ fi
 echo "✅ .env NO será enviado."
 
 # ======================================
+# MOSTRAR CAMBIOS
+# ======================================
+
+echo ""
+echo "📦 Cambios preparados:"
+git status --short
+
+# ======================================
 # COMMIT
 # ======================================
 
 echo ""
-echo "💾 Creando commit..."
+read -p "💬 Mensaje del commit: " MENSAJE
 
-git commit -m "Proyecto inicial limpio"
+if [ -z "$MENSAJE" ]; then
+    echo "❌ El mensaje no puede estar vacío."
+    exit 1
+fi
+
+git commit -m "$MENSAJE"
 
 # ======================================
 # PUSH
@@ -117,7 +114,7 @@ echo "🚀 Subiendo a GitHub..."
 
 git push -u origin "$BRANCH"
 
-echo ""
+
 echo "======================================"
-echo "  ✅ PROYECTO SUBIDO CORRECTAMENTE"
+echo "  ✅ PROYECTO ACTUALIZADO"
 echo "======================================"

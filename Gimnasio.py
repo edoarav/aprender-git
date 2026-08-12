@@ -326,7 +326,7 @@ def ejecutar():
         if driver:
             driver.quit()
             print("👋 Navegador cerrado")
-            print("Esto es un cambio de prueba")
+            print("Estoy trabajando en una rama")
 
         shutil.rmtree(
             temp_profile_dir,

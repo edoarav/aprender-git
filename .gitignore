@@ -1,0 +1,35 @@
+# =========================
+# VARIABLES DE ENTORNO
+# =========================
+
+.env
+.env.*
+!.env.example
+
+# =========================
+# PYTHON
+# =========================
+
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# =========================
+# SECRETOS / CLAVES
+# =========================
+
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+
+# =========================
+# ARCHIVOS DEL SISTEMA
+# =========================
+
+.DS_Store
